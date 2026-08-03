@@ -1,0 +1,37 @@
+import pytest
+
+from tcping.ip_resolver import IpResolver
+from pytest_mock import MockerFixture
+from unittest.mock import MagicMock
+
+
+class TestIpResolver:
+    expected: str = "192.168.0.10"
+    mock_client_port: int = 12345
+    mock_server_ip: str = "8.8.8.8"
+    mock_server_port: int = 67
+
+    @pytest.fixture
+    def mocked_resolver_socket(self, mocker: MockerFixture) -> tuple[IpResolver, MagicMock]:
+        mock_socket_module: MagicMock = mocker.patch("tcping.ip_resolver.socket")
+        mock_socket_instance: MagicMock = mock_socket_module.socket.return_value.__enter__.return_value
+        mock_socket_instance.getsockname.return_value = (self.expected, self.mock_client_port)
+        resolver: IpResolver = IpResolver()
+        return resolver, mock_socket_instance
+
+    def test_get_client_ip(self, mocked_resolver_socket) -> None:
+        mocked_resolver, mock_socket_instance = mocked_resolver_socket
+        result: str = mocked_resolver.client_ip
+
+        assert result == self.expected
+        mock_socket_instance.connect.assert_called_once_with((self.mock_server_ip, self.mock_server_port))
+
+    def test_client_ip_with_cached_ip(self, mocked_resolver_socket) -> None:
+        mocked_resolver, mock_socket_instance = mocked_resolver_socket
+        first_result_ip = mocked_resolver.client_ip
+        second_result_ip = mocked_resolver.client_ip
+
+        assert first_result_ip == second_result_ip == self.expected
+        # Несмотря на двойное обращение к свойству client_ip
+        # connect() должен быть вызван один раз, а client_ip сохранен
+        mock_socket_instance.connect.assert_called_once_with((self.mock_server_ip, self.mock_server_port))
