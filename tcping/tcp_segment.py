@@ -14,13 +14,15 @@ class TcpSegment:
     ) -> None:
         self._server_port: int = server_port
         self._client_port: int = client_port
-        self._server_ip: str = server_ip
+        self._server_ip: str = socket.gethostbyname(server_ip)
         self._client_ip: str = client_ip
         self._seq_num: int = random.randint(0, 2**32 - 1)
         self._server_bytes_ip: bytes = socket.inet_aton(self._server_ip)
         self._client_bytes_ip: bytes = socket.inet_aton(self._client_ip)
         self._payload: bytes = payload  # Segment body for scalability
-        self._tcp_segment_length: int = 20 + len(self._payload)
+        self._tcp_segment_length: int = 20 + len(
+            self._payload
+        )  # ToDo drop hard-code tcp-length
         self._window_size: int = 2**14
         self._pseudo_header: bytes | None = None
         self._tcp_syn_segment: bytes | None = None
