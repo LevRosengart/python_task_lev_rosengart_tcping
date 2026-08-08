@@ -3,7 +3,7 @@ import socket
 
 class IpResolver:
     def __init__(self) -> None:
-        self._mock_ip: str = "8.8.8.8"
+        self._mock_ip: str = "1.1.1.1"
         self._mock_port: int = 67
         self._client_ip: str | None = None
 
