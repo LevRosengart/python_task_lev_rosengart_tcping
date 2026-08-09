@@ -14,7 +14,7 @@ class TcpPinger:
         timeout: int = 3,
     ):
         self._ip_resolver: IpResolver = IpResolver()
-        self._server_ip: str = server_ip
+        self._server_ip: str = socket.gethostbyname(server_ip)
         self._server_port: int = server_port
         self._client_port: int | None = None
         self._client_ip: str = (
