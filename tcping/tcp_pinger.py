@@ -1,9 +1,10 @@
-import socket
 import random
+import socket
 from time import perf_counter
+
 from tcping.ip_resolver import IpResolver
-from tcping.tcp_segment import TcpSegment
 from tcping.tcp_network_filter import TcpNetworkFilter
+from tcping.tcp_segment import TcpSegment
 
 
 class TcpPinger:
@@ -16,7 +17,6 @@ class TcpPinger:
         self._ip_resolver: IpResolver = IpResolver()
         self._server_ip: str = socket.gethostbyname(server_ip)
         self._server_port: int = server_port
-        self._client_port: int | None = None
         self._client_ip: str = (
             self._ip_resolver.client_ip if server_ip != "127.0.0.1" else "127.0.0.1"
         )
@@ -31,8 +31,15 @@ class TcpPinger:
         self._max_packet_size: int = 2**16 - 1
 
     def ping(self) -> float:
+        mss: int = 1452
+        sack_permitted: bool = True
         syn_segment: TcpSegment = TcpSegment(
-            self._server_port, self._client_port, self._server_ip, self._client_ip
+            self._server_port,
+            self._client_port,
+            self._server_ip,
+            self._client_ip,
+            mss=mss,
+            sack_permitted=sack_permitted,
         )
         start_time: float = perf_counter()
         self._client_socket.sendto(

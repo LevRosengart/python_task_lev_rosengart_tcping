@@ -37,5 +37,6 @@ def main() -> None:
         if ping_count < args.pings_count - 1:
             time.sleep(args.interval)
 
+
 if __name__ == "__main__":
     main()

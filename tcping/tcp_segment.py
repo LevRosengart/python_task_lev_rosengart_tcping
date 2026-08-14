@@ -4,6 +4,13 @@ from struct import Struct
 
 
 class TcpSegment:
+    BASIC_TCP_HEADER_LEN: int = 20
+    SACK_KIND: int = 4
+    MSS_KIND: int = 2
+    SACK_LEN: int = 2
+    MSS_LEN: int = 4
+    NOP = 1
+
     def __init__(
         self,
         server_port: int,
@@ -11,6 +18,8 @@ class TcpSegment:
         server_ip: str,
         client_ip: str,
         payload: bytes = b"",
+        mss: int | None = None,
+        sack_permitted: bool | None = None,
     ) -> None:
         self._server_port: int = server_port
         self._client_port: int = client_port
@@ -20,14 +29,30 @@ class TcpSegment:
         self._server_bytes_ip: bytes = socket.inet_aton(self._server_ip)
         self._client_bytes_ip: bytes = socket.inet_aton(self._client_ip)
         self._payload: bytes = payload  # Segment body for scalability
-        self._tcp_segment_length: int = 20 + len(
-            self._payload
-        )  # ToDo drop hard-code tcp-length
         self._window_size: int = 2**14
+        self._options: bytes | None = None
         self._pseudo_header: bytes | None = None
         self._tcp_syn_segment: bytes | None = None
         self._tcp_syn_segment_null_checksum: bytes | None = None
         self._checksum: int | None = None
+        self._mss: int | None = mss
+        self._sack_permitted: bool | None = sack_permitted
+
+    @property
+    def options(self) -> bytes:
+        if self._options is not None:
+            return self._options
+        options_bytes: bytearray = bytearray()
+        if self._mss is not None:
+            if self._mss < 0 or self._mss >= 2**16:
+                raise ValueError("MSS is out of range.")
+            options_bytes += Struct("!BBH").pack(self.MSS_KIND, self.MSS_LEN, self._mss)
+        if self._sack_permitted:
+            options_bytes += Struct("!BBBB").pack(
+                self.SACK_KIND, self.SACK_LEN, self.NOP, self.NOP
+            )
+        self._options = bytes(options_bytes)
+        return bytes(options_bytes)
 
     @property
     def server_port(self) -> int:
@@ -67,7 +92,7 @@ class TcpSegment:
 
     @property
     def tcp_segment_length(self) -> int:
-        return self._tcp_segment_length
+        return self.BASIC_TCP_HEADER_LEN + len(self.payload) + len(self.options)
 
     @property
     def pseudo_header(self) -> bytes:
@@ -79,7 +104,7 @@ class TcpSegment:
             self._server_bytes_ip,
             0,
             socket.IPPROTO_TCP,
-            self._tcp_segment_length,
+            self.tcp_segment_length,
         )
         self._pseudo_header = pseudo_headers
         return pseudo_headers
@@ -95,15 +120,18 @@ class TcpSegment:
         mock_checksum: int = 0
         important_info: int = 0
         length_flags_field: int = (header_length_in_words << 12) | (syn_flag << 1)
-        tcp_syn_segment_null_checksum: bytes = Struct(segment_format).pack(
-            self.client_port,
-            self.server_port,
-            self.seq_num,
-            ack_num,
-            length_flags_field,
-            self._window_size,
-            mock_checksum,
-            important_info,
+        tcp_syn_segment_null_checksum: bytes = (
+            Struct(segment_format).pack(
+                self.client_port,
+                self.server_port,
+                self.seq_num,
+                ack_num,
+                length_flags_field,
+                self._window_size,
+                mock_checksum,
+                important_info,
+            )
+            + self.options
         )
         self._tcp_syn_segment_null_checksum = tcp_syn_segment_null_checksum
         return self._tcp_syn_segment_null_checksum
