@@ -14,7 +14,6 @@ class TestPingMetrics:
         assert metrics.max_rtt is None
         assert metrics.avg_rtt is None
 
-
     def test_single_successful_ping(self) -> None:
         metrics = PingMetrics()
 
@@ -26,7 +25,6 @@ class TestPingMetrics:
         assert metrics.max_rtt == pytest.approx(0.1, abs=1e-6)
         assert metrics.max_rtt == pytest.approx(0.1, abs=1e-6)
         assert metrics.avg_rtt == pytest.approx(0.1, abs=1e-6)
-
 
     def test_multiple_successful_pings(self) -> None:
         metrics = PingMetrics()
@@ -41,7 +39,6 @@ class TestPingMetrics:
         assert metrics.max_rtt == pytest.approx(0.3, abs=1e-6)
         assert metrics.avg_rtt == pytest.approx(0.2, abs=1e-6)
 
-
     def test_lost_ping(self) -> None:
         metrics = PingMetrics()
 
@@ -52,7 +49,6 @@ class TestPingMetrics:
         assert metrics.min_rtt is None
         assert metrics.max_rtt is None
         assert metrics.avg_rtt is None
-
 
     def test_successful_and_lost_pings(self) -> None:
         metrics = PingMetrics()

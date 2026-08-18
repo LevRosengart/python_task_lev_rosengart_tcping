@@ -132,7 +132,9 @@ class TestTcpSegment:
             assert new_checksum == 0
 
     def test_tcp_syn_segment(self, segment: TcpSegment) -> None:
-        expected_tcp_segment: bytearray = bytearray(segment.tcp_syn_segment_without_checksum)
+        expected_tcp_segment: bytearray = bytearray(
+            segment.tcp_syn_segment_without_checksum
+        )
         checksum: int = segment.checksum
         Struct("!H").pack_into(expected_tcp_segment, 16, checksum)
         assert bytes(expected_tcp_segment) == segment.tcp_syn_segment
