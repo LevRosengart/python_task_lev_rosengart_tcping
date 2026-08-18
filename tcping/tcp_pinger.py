@@ -32,7 +32,9 @@ class TcpPinger:
         )
         self._max_packet_size: int = 2**16 - 1
 
-    def ping(self, mss: int | None = None, sack_permitted: bool | None = None) -> PingData:
+    def ping(
+        self, mss: int | None = None, sack_permitted: bool | None = None
+    ) -> PingData:
         syn_segment: TcpSegment = TcpSegment(
             self._server_port,
             self._client_port,
@@ -47,7 +49,9 @@ class TcpPinger:
         )
         while True:
             try:
-                ip_packet, server_addr = self._client_socket.recvfrom(self._max_packet_size)
+                ip_packet, server_addr = self._client_socket.recvfrom(
+                    self._max_packet_size
+                )
             except (socket.timeout, TimeoutError):
                 return PingData(success=False)
             current_time: float = perf_counter()

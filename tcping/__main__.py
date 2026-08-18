@@ -39,7 +39,7 @@ def main() -> None:
     for ping_count in range(1, args.pings_count + 1):
         try:
             ping_info: PingData = tcp_pinger.ping(mss=1452, sack_permitted=True)
-        except Exception as e: # NOQA
+        except Exception as e:  # NOQA
             print("Unexpected error")
         else:
             if ping_info.success:
@@ -48,6 +48,7 @@ def main() -> None:
                 print(f"PING {ping_count}\tPacket is loss")
         if ping_count < args.pings_count:
             time.sleep(args.interval)
+
 
 if __name__ == "__main__":
     main()
