@@ -6,10 +6,10 @@ from unittest.mock import MagicMock
 
 
 class TestIpResolver:
-    expected: str = "192.168.0.10"
+    expected_client_ip: str = "192.168.0.10"
     mock_client_port: int = 12345
-    mock_server_ip: str = "8.8.8.8"
-    mock_server_port: int = 67
+    mock_server_ip: str = "1.1.1.1"
+    mock_server_port: int = 1234
 
     @pytest.fixture
     def mocked_resolver_socket(
@@ -20,7 +20,7 @@ class TestIpResolver:
             mock_socket_module.socket.return_value.__enter__.return_value
         )
         mock_socket_instance.getsockname.return_value = (
-            self.expected,
+            self.expected_client_ip,
             self.mock_client_port,
         )
         resolver: IpResolver = IpResolver()
@@ -30,7 +30,7 @@ class TestIpResolver:
         mocked_resolver, mock_socket_instance = mocked_resolver_socket
         result: str = mocked_resolver.client_ip
 
-        assert result == self.expected
+        assert result == self.expected_client_ip
         mock_socket_instance.connect.assert_called_once_with(
             (self.mock_server_ip, self.mock_server_port)
         )
@@ -40,7 +40,7 @@ class TestIpResolver:
         first_result_ip = mocked_resolver.client_ip
         second_result_ip = mocked_resolver.client_ip
 
-        assert first_result_ip == second_result_ip == self.expected
+        assert first_result_ip == second_result_ip == self.expected_client_ip
         # Despite the client_ip property being accessed twice,
         # connect() should be called only once, and client_ip should be stored
         mock_socket_instance.connect.assert_called_once_with(

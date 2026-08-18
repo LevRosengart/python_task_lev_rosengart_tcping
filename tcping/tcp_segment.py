@@ -1,6 +1,7 @@
 import random
 import socket
 from struct import Struct
+from typing import Self
 
 
 class TcpSegment:
@@ -114,7 +115,9 @@ class TcpSegment:
         if self._tcp_syn_segment_null_checksum is not None:
             return self._tcp_syn_segment_null_checksum
         segment_format: str = "!HHIIHHHH"
-        header_length_in_words: int = 5
+        header_length_in_words: int = (
+            self.BASIC_TCP_HEADER_LEN + len(self.options) + len(self.payload)
+        ) // 4
         ack_num: int = 0
         syn_flag: int = 1
         mock_checksum: int = 0
@@ -143,6 +146,11 @@ class TcpSegment:
         data: bytes = (
             self.pseudo_header + self.tcp_syn_segment_without_checksum + self.payload
         )
+        self._checksum = self.calculate_checksum(data)
+        return self._checksum
+
+    @classmethod
+    def calculate_checksum(cls, data: bytes) -> int:
         checksum: int = 0
         if len(data) % 2:
             data += b"\x00"
@@ -151,8 +159,8 @@ class TcpSegment:
             checksum += int.from_bytes(chunk, byteorder="big")
         while checksum >> 16:
             checksum = (checksum & 0xFFFF) + (checksum >> 16)
-        self._checksum = (~checksum) & 0xFFFF
-        return self._checksum
+
+        return (~checksum) & 0xFFFF
 
     @property
     def tcp_syn_segment(self) -> bytes:

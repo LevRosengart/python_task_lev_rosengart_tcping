@@ -21,9 +21,10 @@ class TestTcpNetworkFilter:
         self.length_and_flags_rst_ack: int = 0b001010_000_00010100
         self.resp_urg_pointer: int = 0
         self.resp_seq: int = random.randint(0, 2**32 - 1)
-        self.resp_checksum: int = random.randint(0, 2**16 - 1)
+        self.resp_checksum: int = random.randint(
+            0, 2**16 - 1
+        )  # Checksum should check OS
         self.resp_window_size: int = random.randint(0, 2**16 - 1)
-        self.resp_checksum: int = random.randint(0, 2**16 - 1)
         self.filter = TcpNetworkFilter(
             self.expected_resp_dest_ip,
             self.expected_resp_source_ip,
