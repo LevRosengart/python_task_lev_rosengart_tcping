@@ -1,7 +1,7 @@
 import pytest
 
-from tcping.ping_data import PingData
 from tcping.metrics import PingMetrics
+from tcping.ping_data import PingData
 
 
 class TestPingMetrics:

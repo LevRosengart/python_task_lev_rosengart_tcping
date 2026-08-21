@@ -14,7 +14,7 @@ class TcpPinger:
         server_ip: str,
         server_port: int,
         timeout: int = 3,
-    ):
+    ) -> None:
         self._ip_resolver: IpResolver = IpResolver()
         self._server_ip: str = socket.gethostbyname(server_ip)
         self._server_port: int = server_port
@@ -32,9 +32,7 @@ class TcpPinger:
         )
         self._max_packet_size: int = 2**16 - 1
 
-    def ping(
-        self, mss: int | None = None, sack_permitted: bool | None = None
-    ) -> PingData:
+    def ping(self, mss: int | None = None, sack_permitted: bool | None = None) -> PingData:
         syn_segment: TcpSegment = TcpSegment(
             self._server_port,
             self._client_port,
@@ -49,18 +47,14 @@ class TcpPinger:
         )
         while True:
             try:
-                ip_packet, server_addr = self._client_socket.recvfrom(
-                    self._max_packet_size
-                )
-            except (socket.timeout, TimeoutError):
+                ip_packet, server_addr = self._client_socket.recvfrom(self._max_packet_size)
+            except TimeoutError:
                 return PingData(success=False)
             current_time: float = perf_counter()
             if current_time - start_time > self._timeout:
                 return PingData(success=False)
-            server_addr: str = server_addr[0]
-            tcp_received_segment = self._net_filter.get_tcp_segment_from_ip_packet(
-                ip_packet
-            )
+            server_addr = server_addr[0]
+            tcp_received_segment = self._net_filter.get_tcp_segment_from_ip_packet(ip_packet)
             if self._net_filter.is_valid_tcp_response(
                 tcp_received_segment, server_addr, syn_segment.seq_num
             ):

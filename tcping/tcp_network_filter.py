@@ -5,15 +5,13 @@ class TcpNetworkFilter:
         client_dest_ip: str,
         client_source_port: int,
         client_dest_port: int,
-    ):
+    ) -> None:
         self._resp_dest_ip: str = client_source_ip
         self._resp_dest_port: int = client_source_port
         self._resp_source_ip: str = client_dest_ip
         self._resp_source_port: int = client_dest_port
 
-    def is_valid_tcp_response(
-        self, segment: bytes, server_ip: str, sent_seq_num: int
-    ) -> bool:
+    def is_valid_tcp_response(self, segment: bytes, server_ip: str, sent_seq_num: int) -> bool:
         if not self._is_valid_tcp_response_dest(segment, server_ip):
             return False
         flags: dict[str, bool] = self._get_syn_ack_rst_flags(segment)

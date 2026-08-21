@@ -1,8 +1,9 @@
+from unittest.mock import MagicMock
+
 import pytest
+from pytest_mock import MockerFixture
 
 from tcping.ip_resolver import IpResolver
-from pytest_mock import MockerFixture
-from unittest.mock import MagicMock
 
 
 class TestIpResolver:
@@ -12,9 +13,7 @@ class TestIpResolver:
     mock_server_port: int = 1234
 
     @pytest.fixture
-    def mocked_resolver_socket(
-        self, mocker: MockerFixture
-    ) -> tuple[IpResolver, MagicMock]:
+    def mocked_resolver_socket(self, mocker: MockerFixture) -> tuple[IpResolver, MagicMock]:
         mock_socket_module: MagicMock = mocker.patch("tcping.ip_resolver.socket")
         mock_socket_instance: MagicMock = (
             mock_socket_module.socket.return_value.__enter__.return_value
@@ -26,7 +25,7 @@ class TestIpResolver:
         resolver: IpResolver = IpResolver()
         return resolver, mock_socket_instance
 
-    def test_get_client_ip(self, mocked_resolver_socket) -> None:
+    def test_get_client_ip(self, mocked_resolver_socket: tuple[IpResolver, MagicMock]) -> None:
         mocked_resolver, mock_socket_instance = mocked_resolver_socket
         result: str = mocked_resolver.client_ip
 
@@ -35,7 +34,9 @@ class TestIpResolver:
             (self.mock_server_ip, self.mock_server_port)
         )
 
-    def test_client_ip_with_cached_ip(self, mocked_resolver_socket) -> None:
+    def test_client_ip_with_cached_ip(
+        self, mocked_resolver_socket: tuple[IpResolver, MagicMock]
+    ) -> None:
         mocked_resolver, mock_socket_instance = mocked_resolver_socket
         first_result_ip = mocked_resolver.client_ip
         second_result_ip = mocked_resolver.client_ip

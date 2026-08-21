@@ -1,5 +1,5 @@
-from argparse import ArgumentParser
 import time
+from argparse import ArgumentParser
 
 from tcping.metrics import PingMetrics
 from tcping.ping_data import PingData
@@ -9,8 +9,7 @@ from tcping.tcp_pinger import TcpPinger
 
 def main() -> None:
     arg_parser: ArgumentParser = ArgumentParser(
-        description="Tcping. Measures RTT (Round-Trip Time)"
-        "from user client to specified port."
+        description="Tcping. Measures RTT (Round-Trip Time)from user client to specified port."
     )
 
     arg_parser.add_argument("host", type=str, help="Hostname or ip")

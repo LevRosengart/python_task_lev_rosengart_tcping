@@ -2,12 +2,12 @@ from tcping.metrics import PingMetrics
 
 
 class StatsFormatter:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     @classmethod
     def format(cls, metrics: PingMetrics) -> str:
-        result = f"---\tTCPing\t---\n"
+        result = "---\tTCPing\t---\n"
         result += f"Sent packets: {metrics.sent_packets_count}\n"
         result += f"Received packets: {metrics.received_packets_count}\n"
         if metrics.received_packets_count > 0:

@@ -1,7 +1,6 @@
 import random
 import socket
 from struct import Struct
-from typing import Self
 
 
 class TcpSegment:
@@ -49,9 +48,7 @@ class TcpSegment:
                 raise ValueError("MSS is out of range.")
             options_bytes += Struct("!BBH").pack(self.MSS_KIND, self.MSS_LEN, self._mss)
         if self._sack_permitted:
-            options_bytes += Struct("!BBBB").pack(
-                self.SACK_KIND, self.SACK_LEN, self.NOP, self.NOP
-            )
+            options_bytes += Struct("!BBBB").pack(self.SACK_KIND, self.SACK_LEN, self.NOP, self.NOP)
         self._options = bytes(options_bytes)
         return bytes(options_bytes)
 
@@ -143,9 +140,7 @@ class TcpSegment:
     def checksum(self) -> int:
         if self._checksum is not None:
             return self._checksum
-        data: bytes = (
-            self.pseudo_header + self.tcp_syn_segment_without_checksum + self.payload
-        )
+        data: bytes = self.pseudo_header + self.tcp_syn_segment_without_checksum + self.payload
         self._checksum = self.calculate_checksum(data)
         return self._checksum
 
@@ -166,9 +161,7 @@ class TcpSegment:
     def tcp_syn_segment(self) -> bytes:
         if self._tcp_syn_segment is not None:
             return self._tcp_syn_segment
-        null_checksum_segment: bytearray = bytearray(
-            self.tcp_syn_segment_without_checksum
-        )
+        null_checksum_segment: bytearray = bytearray(self.tcp_syn_segment_without_checksum)
         Struct("!H").pack_into(null_checksum_segment, 16, self.checksum)
         self._tcp_syn_segment = bytes(null_checksum_segment)
         return self._tcp_syn_segment

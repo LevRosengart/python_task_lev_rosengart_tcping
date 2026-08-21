@@ -14,14 +14,10 @@ class PingMetrics:
         if ping_info.success:
             self._received_packets_count += 1
             self._max_rtt = (
-                max(self._max_rtt, ping_info.rtt)
-                if self._max_rtt is not None
-                else ping_info.rtt
+                max(self._max_rtt, ping_info.rtt) if self._max_rtt is not None else ping_info.rtt
             )
             self._min_rtt = (
-                min(self._min_rtt, ping_info.rtt)
-                if self._min_rtt is not None
-                else ping_info.rtt
+                min(self._min_rtt, ping_info.rtt) if self._min_rtt is not None else ping_info.rtt
             )
             self._sum_rtt += ping_info.rtt
 

@@ -2,7 +2,7 @@ import socket
 
 
 class IpResolver:
-    def __init__(self):
+    def __init__(self) -> None:
         self._client_ip: str | None = None
 
     @property
@@ -17,4 +17,4 @@ class IpResolver:
         mock_server_port = 1234
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as conn:
             conn.connect((mock_server_ip, mock_server_port))
-            return conn.getsockname()[0]
+            return str(conn.getsockname()[0])
